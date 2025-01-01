@@ -112,10 +112,10 @@ def scrape(url):
             .find_element(By.CSS_SELECTOR, 'like-button-view-model button .yt-spec-button-shape-next__button-text-content') \
             .text
 
-        # TODO scripts
+        # TODO transcript
         driver.find_element(By.CSS_SELECTOR, '#primary .ytd-structured-description-content-renderer .ytd-video-description-transcript-section-renderer button').click()
 
-
+        
 
         video['url'] = url
         video['title'] = title
