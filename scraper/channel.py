@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from utils import config_utils, driver_utils, file_utils
-from video import scrape as video_scrape
+from scraper.video import scrape as video_scrape
 
 config = config_utils.init_config('../config/config.ini')
 
