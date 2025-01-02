@@ -1,37 +1,15 @@
-import configparser
-import json
-import os
-
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-config = configparser.ConfigParser()
-current_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(current_dir, '../config/config.ini')
-config.read(config_path, encoding='utf-8')
+from utils import config_utils, driver_utils, file_utils
 
-
-def create_driver():
-    """드라이버를 안전하게 생성하고 반환"""
-    options = Options()
-    options.add_argument('--no-sandbox')  # 보안 기능 비활성
-    options.add_argument("--disable-extensions")  # 확장 프로그램 비활성
-    options.add_argument("disable-blink-features=AutomationControlled")  # 자동화 탐지 방지
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])  # 자동화 표시 제거
-    options.add_experimental_option('useAutomationExtension', False)  # 자동화 확장 기능 사용 안 함
-
-    return webdriver.Chrome(
-        # service=ChromeService(ChromeDriverManager().install()),
-        options=options
-    )
+config = config_utils.init_config()
 
 def scrape(url):
-    """스크래핑 로직"""
+
     try:
-        driver = create_driver()
+        driver = driver_utils.create_driver()
         driver.implicitly_wait(10)  # 동기화
         driver.set_window_position(2048, 0)  # 우측 세컨 모니터를 이용하기 위해 왼쪽 메인 모니터 width 만큼 이동
 
@@ -159,15 +137,6 @@ if __name__ == "__main__":
     req_url = 'https://www.youtube.com/watch?v=kuDuJWvho7Q'
     video = scrape(req_url)
 
-    # 출력 경로 정의
-    output_path = 'output/video.json'
-    output_dir = os.path.dirname(output_path)
-
-    # 디렉토리 생성 확인
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    with open(output_path, 'w', encoding='utf-8') as file:
-        json.dump(video, file, ensure_ascii=False, indent=4)
+    file_utils.make_result_json(video, output_path = '../output/video.json')
 
     print("finish")

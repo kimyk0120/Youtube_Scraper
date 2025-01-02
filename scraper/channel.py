@@ -1,57 +1,45 @@
 import configparser
 import os
 
-config = configparser.ConfigParser()
-current_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(current_dir, '../config/config.ini')
-config.read(config_path, encoding='utf-8')
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from utils import config_utils, driver_utils, file_utils
+
+config = config_utils.init_config()
+
+def scrape(url):
+
+    try:
+        driver = driver_utils.create_driver()
+        driver.implicitly_wait(10)  # 동기화
+        driver.set_window_position(2048, 0)  # 우측 세컨 모니터를 이용하기 위해 왼쪽 메인 모니터 width 만큼 이동
+
+        if 'videos' not in url:
+            url += '/videos'
+
+        driver.get(url)  # 요청
+
+        # consent
+        # consent.consent(driver)
+
+        print("test")
 
 
-import urllib
-import json
-
-def get_all_video_in_channel(channel_id):
-    api_key = YOUR API KEY
-
-    base_video_url = 'https://www.youtube.com/watch?v='
-    base_search_url = 'https://www.googleapis.com/youtube/v3/search?'
-
-    first_url = base_search_url+'key={}&channelId={}&part=snippet,id&order=date&maxResults=25'.format(api_key, channel_id)
-
-    video_links = []
-    url = first_url
-    while True:
-        inp = urllib.urlopen(url)
-        resp = json.load(inp)
-
-        for i in resp['items']:
-            if i['id']['kind'] == "youtube#video":
-                video_links.append(base_video_url + i['id']['videoId'])
-
-        try:
-            next_page_token = resp['nextPageToken']
-            url = first_url + '&pageToken={}'.format(next_page_token)
-        except:
-            break
-    return video_links
+    except Exception as e:
+        print(f"Error occurred: {e}")
+    finally:
+        # 리소스 정리
+        if driver:
+            print("Driver closed")
+            driver.quit()  # 드라이버 종료
 
 
 if __name__ == "__main__":
-    print("start")
+    print("start channel")
 
-    req_url = 'https://www.youtube.com/watch?v=kuDuJWvho7Q'
+    req_url = 'https://www.youtube.com/@BrightData/videos'
+    channel = scrape(req_url)
 
-    # video = scrape(req_url)
+    # file_utils.make_result_json(video, output_path = '../output/channel.json')
 
-    # 출력 경로 정의
-    # output_path = 'output/video.json'
-    # output_dir = os.path.dirname(output_path)
-    #
-    # # 디렉토리 생성 확인
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    #
-    # with open(output_path, 'w', encoding='utf-8') as file:
-    #     json.dump(video, file, ensure_ascii=False, indent=4)
-
-    print("finish")
+    print("finish channel")
