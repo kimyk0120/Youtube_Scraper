@@ -18,13 +18,49 @@ def scrape(url):
 
         driver.get(url)  # 요청
 
+        # consent
+        # consent.consent(driver)
+
         # load page data
         WebDriverWait(driver, 15).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, 'h1.dynamic-text-view-model-wiz__h1'))
         )
 
-        # consent
-        # consent.consent(driver)
+        # ...더보기 버튼
+        driver.find_element(By.CSS_SELECTOR, '#page-header button.truncated-text-wiz__absolute-button').click()
+
+        # desc
+        try:
+            channel_description = driver.find_element(By.CSS_SELECTOR, '#description-container > span').text
+        except Exception as e:
+            channel_description = None
+            print(e)
+
+        # links
+        links = []
+        try:
+            like_els = driver.find_element(By.ID, 'link-list-container').find_elements(By.CSS_SELECTOR,
+                                                                        'yt-channel-external-link-view-model')
+            for el in like_els:
+                el_text = el.text
+                txt_splt = el_text.split('\n')
+                link_name = txt_splt[0]
+                link_url = txt_splt[1]
+                links.append({'name': link_name, 'url': link_url})
+
+        except Exception as e:
+            links = None
+            print(e)
+
+        # channel detail infos
+
+
+
+        # close popup
+        driver.find_element(By.CSS_SELECTOR, '#visibility-button').click()
+
+
+
 
         print("test")
 
@@ -41,8 +77,8 @@ def scrape(url):
 if __name__ == "__main__":
     print("start channel")
 
-    req_url = 'https://www.youtube.com/@BrightData/videos'
-    channel = scrape(req_url)
+    req_url = ['https://www.youtube.com/@BrightData/videos', 'https://www.youtube.com/@archive-os5yn']
+    scrape(req_url[1])
 
     # file_utils.make_result_json(video, output_path = '../output/channel.json')
 
