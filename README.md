@@ -10,8 +10,8 @@ ING...
 - 채널의 데이터는 youtube api를 사용하는게 좋을 듯 
   - 일 1만포인트 
   - 소요 목록 : https://developers.google.com/youtube/v3/determine_quota_cost?hl=ko
-- youtube api 검토 
+  - only return the first maxResults=20 (up to 50) videos ??
+   
+- 채널 단위 init 
+  - 입력: YouTube 채널 URL 
 
-- 비디오 기본 단위 끝나면 > 채널 단위 or 검색 단위 > 채널단위가 좋을듯 
-- 입력: YouTube 채널 URL 
-- 출력: 제작자의 콘텐츠 데이터가 포함된 구조화된 Excel 파일(AI 훈련용)
