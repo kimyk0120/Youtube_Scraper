@@ -3,7 +3,6 @@ import json
 import os
 
 from selenium import webdriver
-from selenium.common import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -38,23 +37,8 @@ def scrape(url):
 
         driver.get(url)  # 요청
 
-        try:
-            # wait up to 15 seconds for the consent dialog to show up
-            consent_overlay = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.ID, 'dialog'))
-            )
-
-            # select the consent option buttons
-            consent_buttons = consent_overlay.find_elements(By.CSS_SELECTOR,
-                                                            '.eom-buttons button.yt-spec-button-shape-next')
-            if len(consent_buttons) > 1:
-                # retrieve and click the 'Accept all' button
-                accept_all_button = consent_buttons[1]
-                accept_all_button.click()
-            else:
-                print('No consent buttons found')
-        except TimeoutException:
-            print('Cookie modal missing')
+        # consent
+        # consent.consent(driver)
 
         # wait for YouTube to load the page data
         WebDriverWait(driver, 15).until(
@@ -112,18 +96,50 @@ def scrape(url):
             .find_element(By.CSS_SELECTOR, 'like-button-view-model button .yt-spec-button-shape-next__button-text-content') \
             .text
 
-        # TODO transcript
+        # transcript
         driver.find_element(By.CSS_SELECTOR, '#primary .ytd-structured-description-content-renderer .ytd-video-description-transcript-section-renderer button').click()
 
-        
+        WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, '#segments-container yt-formatted-string'))
+        )
 
+        string_els = driver.find_elements(By.CSS_SELECTOR, '#segments-container yt-formatted-string')
+        t_scripts = ''
+        for el in string_els:
+            t_scripts += el.text + '\n'
+
+        # scroll bottom for 댓글 개수 엘리먼트 로딩
+        def scroll_down_page(speed=8):
+            current_scroll_position, new_height = 0, driver.execute_script("return document.getElementById('content').scrollHeight")
+            while current_scroll_position <= new_height:
+                current_scroll_position += speed
+                try:
+                    driver.execute_script("window.scrollTo(0, {});".format(current_scroll_position))
+                except Exception as e:
+                    print("error scrolling down: {}".format(e))
+                    break
+
+        scroll_down_page(8)
+
+        # wait foor revies
+        WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, '#leading-section #count span'))
+        )
+
+        # reply count
+        reply_count = driver.find_elements(By.CSS_SELECTOR, '#leading-section #count span')[1].text
+
+
+        # video data
         video['url'] = url
         video['title'] = title
         video['channel'] = channel
         video['views'] = views
         video['publication_date'] = publication_date
         video['description'] = description
-        video['likes'] = likes
+        video['likes'] = int(likes)
+        video['transcript'] = t_scripts
+        video['reply_count'] = int(reply_count)
 
         return video
 
