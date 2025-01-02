@@ -1,10 +1,13 @@
+import re
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from utils import config_utils, driver_utils, file_utils
 
-config = config_utils.init_config()
+config = config_utils.init_config('../config/config.ini')
 
 def scrape(url):
 
@@ -25,6 +28,12 @@ def scrape(url):
         WebDriverWait(driver, 15).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, 'h1.dynamic-text-view-model-wiz__h1'))
         )
+
+        # channel result data
+        channel = {}
+
+        # title
+        title = driver.find_element(By.CSS_SELECTOR, 'h1.dynamic-text-view-model-wiz__h1').text
 
         # ...더보기 버튼
         driver.find_element(By.CSS_SELECTOR, '#page-header button.truncated-text-wiz__absolute-button').click()
@@ -53,17 +62,70 @@ def scrape(url):
             print(e)
 
         # channel detail infos
+        # 0: email (hidden), 1: phone (hidden), 2: page_url, 3: subscriber, 4 : video count, 5: view count, 6: regist date, 7: None
+        try:
+            tr_els = driver.find_element(By.CSS_SELECTOR, '#additional-info-container').find_elements(By.CSS_SELECTOR,
+                                                                                             "tr.description-item")
+            page_url = tr_els[2].text
+            subscriber = tr_els[3].text
+            video_count = tr_els[4].text
+            view_count = tr_els[5].text
+            regist_date = tr_els[6].text
 
+        except Exception as e:
+            page_url = None
+            subscriber = None
+            video_count = None
+            view_count = None
+            regist_date = None
+            print(e)
 
 
         # close popup
         driver.find_element(By.CSS_SELECTOR, '#visibility-button').click()
 
 
+        channel['title'] = title
+        channel['description'] = channel_description
+        channel['links'] = links
+        channel['page_url'] = page_url
+        channel['subscriber'] = subscriber
+        channel['video_count'] = video_count
+        channel['view_count'] = view_count
+        channel['regist_date'] = regist_date
 
+        # TODO get channel video infos
+
+        # page scroll to end
+        total_video_count = int(re.sub(r'\D', '', video_count))  # \D는 숫자가 아닌 모든 문자에 해당
+        limit_count = int(config['CONFIG']['video_limit_cnt'])
+        timeout_sec = int(config['CONFIG']['timeout_sec'])
+
+        start_time = time.time()  # 현재 시간을 기록
+        total_listings = []
+        previous_list_size = 0
+
+        def scroll_down_page(speed=8):
+            current_scroll_position, new_height = 0, 1
+            while current_scroll_position <= new_height:
+                current_scroll_position += speed
+                try:
+                    driver.execute_script("window.scrollTo(0, {});".format(current_scroll_position))
+                    new_height = driver.execute_script("return document.body.scrollHeight")
+                    time.sleep(0.3)
+                    print(f"scrolling down... {current_scroll_position}/{new_height}")
+                except Exception as e:
+                    print("error scrolling down: {}".format(e))
+                    break
+
+        scroll_down_page(8)
+
+        # ytd-rich-item-renderer #content #thumbnail[href]
+
+        # channel['videos'] = videos
 
         print("test")
-
+        return channel
 
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -78,8 +140,8 @@ if __name__ == "__main__":
     print("start channel")
 
     req_url = ['https://www.youtube.com/@BrightData/videos', 'https://www.youtube.com/@archive-os5yn']
-    scrape(req_url[1])
+    channel = scrape(req_url[0])
 
-    # file_utils.make_result_json(video, output_path = '../output/channel.json')
+    file_utils.make_result_json(channel, output_path = '../output/channel.json')
 
     print("finish channel")
