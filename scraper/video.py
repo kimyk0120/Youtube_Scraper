@@ -75,16 +75,21 @@ def scrape(url):
             .text
 
         # transcript
-        driver.find_element(By.CSS_SELECTOR, '#primary .ytd-structured-description-content-renderer .ytd-video-description-transcript-section-renderer button').click()
+        try:
+            driver.find_element(By.CSS_SELECTOR, '#primary .ytd-structured-description-content-renderer .ytd-video-description-transcript-section-renderer button').click()
 
-        WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, '#segments-container yt-formatted-string'))
-        )
+            WebDriverWait(driver, 5).until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, '#segments-container yt-formatted-string'))
+            )
 
-        string_els = driver.find_elements(By.CSS_SELECTOR, '#segments-container yt-formatted-string')
-        t_scripts = ''
-        for el in string_els:
-            t_scripts += el.text + '\n'
+            string_els = driver.find_elements(By.CSS_SELECTOR, '#segments-container yt-formatted-string')
+            t_scripts = ''
+            for el in string_els:
+                t_scripts += el.text + '\n'
+        except Exception as e:
+            print(e)
+            t_scripts = None
+            print("transcript not found")
 
         # scroll bottom for 댓글 개수 엘리먼트 로딩
         def scroll_down_page(speed=8):
@@ -111,7 +116,7 @@ def scrape(url):
         # video data
         video['url'] = url
         video['title'] = title
-        video['channel'] = channel
+        # video['channel'] = channel  # channel 단위 일때는 필요하지 않음
         video['views'] = views
         video['publication_date'] = publication_date
         video['description'] = description
