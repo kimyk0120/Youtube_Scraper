@@ -105,20 +105,16 @@ def scrape(url):
         total_listings = []
         previous_list_size = 0
 
-        def scroll_down_page(speed=8):
-            current_scroll_position, new_height = 0, 1
-            while current_scroll_position <= new_height:
-                current_scroll_position += speed
-                try:
-                    driver.execute_script("window.scrollTo(0, {});".format(current_scroll_position))
-                    new_height = driver.execute_script("return document.body.scrollHeight")
-                    time.sleep(0.3)
-                    print(f"scrolling down... {current_scroll_position}/{new_height}")
-                except Exception as e:
-                    print("error scrolling down: {}".format(e))
-                    break
-
-        scroll_down_page(8)
+        current_scroll_position, new_height = 0, driver.execute_script("return document.getElementById('content').scrollHeight")
+        while current_scroll_position <= new_height:
+            current_scroll_position += 8
+            try:
+                driver.execute_script("window.scrollTo(0, {});".format(current_scroll_position))
+                new_height = driver.execute_script("return document.getElementById('content').scrollHeight")
+                print(f"scrolling down... {current_scroll_position}/{new_height}")
+            except Exception as e:
+                print("error scrolling down: {}".format(e))
+                break
 
         # ytd-rich-item-renderer #content #thumbnail[href]
 
