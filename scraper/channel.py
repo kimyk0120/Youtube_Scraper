@@ -1,8 +1,7 @@
-import configparser
-import os
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from utils import config_utils, driver_utils, file_utils
 
 config = config_utils.init_config()
@@ -18,6 +17,11 @@ def scrape(url):
             url += '/videos'
 
         driver.get(url)  # 요청
+
+        # load page data
+        WebDriverWait(driver, 15).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, 'h1.dynamic-text-view-model-wiz__h1'))
+        )
 
         # consent
         # consent.consent(driver)
