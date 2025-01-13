@@ -44,7 +44,7 @@ def scrape(search_keyword,):
             EC.presence_of_element_located((By.CSS_SELECTOR, 'ytd-search #contents ytd-item-section-renderer'))
         )
 
-
+        # TODO 페이징 및 리미트 필요
         driver.find_elements(By.CSS_SELECTOR, 'ytd-search #contents ytd-item-section-renderer ytd-video-renderer')
 
 
