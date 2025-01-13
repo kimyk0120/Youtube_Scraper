@@ -6,7 +6,7 @@ from utils import config_utils, driver_utils, file_utils
 
 config = config_utils.init_config()
 
-def scrape(url):
+def scrape(url, get_channel=False):
 
     try:
         driver = driver_utils.create_driver()
@@ -116,7 +116,8 @@ def scrape(url):
         # video data
         video['url'] = url
         video['title'] = title
-        # video['channel'] = channel  # channel 단위 일때는 필요하지 않음
+        if get_channel:
+            video['channel'] = channel  # channel 단위 일때는 필요하지 않음
         video['views'] = views
         video['publication_date'] = publication_date
         video['description'] = description
