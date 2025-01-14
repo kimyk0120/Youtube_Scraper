@@ -10,7 +10,7 @@ from scraper.video import scrape as video_scrape
 
 config = config_utils.init_config('../config/config.ini')
 
-def scrape(url):
+def scrape(url, get_videos=True):
 
     try:
         driver = driver_utils.create_driver()
@@ -85,59 +85,60 @@ def scrape(url):
         # close popup
         driver.find_element(By.CSS_SELECTOR, '#visibility-button').click()
 
-        # page scroll to end
-        total_video_count = int(re.sub(r'\D', '', video_count))  # \D는 숫자가 아닌 모든 문자에 해당
-        limit_count = int(config['CONFIG']['video_limit_cnt'])
-        timeout_sec = int(config['CONFIG']['timeout_sec'])
+        if get_videos:
+            # page scroll to end
+            total_video_count = int(re.sub(r'\D', '', video_count))  # \D는 숫자가 아닌 모든 문자에 해당
+            limit_count = int(config['CONFIG']['video_limit_cnt'])
+            timeout_sec = int(config['CONFIG']['timeout_sec'])
 
-        start_time = time.time()  # 현재 시간을 기록
-        total_listings = []
-        previous_list_size = 0
+            start_time = time.time()  # 현재 시간을 기록
+            total_listings = []
+            previous_list_size = 0
 
-        new_height = driver.execute_script("return document.getElementById('content').scrollHeight")
-        while True:
-            try:
-                driver.execute_script("window.scrollTo(0, {});".format(new_height))
-                new_height = driver.execute_script("return document.getElementById('content').scrollHeight")
+            new_height = driver.execute_script("return document.getElementById('content').scrollHeight")
+            while True:
+                try:
+                    driver.execute_script("window.scrollTo(0, {});".format(new_height))
+                    new_height = driver.execute_script("return document.getElementById('content').scrollHeight")
 
-                targer_els = driver.find_elements(By.CSS_SELECTOR, '#content ytd-rich-item-renderer #content ytd-thumbnail #thumbnail[href]')
-                print("len(targer_els) : " , len(targer_els))
-                time.sleep(1)
+                    targer_els = driver.find_elements(By.CSS_SELECTOR, '#content ytd-rich-item-renderer #content ytd-thumbnail #thumbnail[href]')
+                    print("len(targer_els) : " , len(targer_els))
+                    time.sleep(1)
 
-                for el in targer_els[previous_list_size:]:
-                    video_url = el.get_attribute('href')
-                    if video_url not in total_listings:
-                        start_time = time.time()
-                        total_listings.append(video_url)
-                        print("appended video url total len : ", len(total_listings))
+                    for el in targer_els[previous_list_size:]:
+                        video_url = el.get_attribute('href')
+                        if video_url not in total_listings:
+                            start_time = time.time()
+                            total_listings.append(video_url)
+                            print("appended video url total len : ", len(total_listings))
 
-                # 가져온 목록 수가 전체 목록수와 동일할 때 break
-                # 전체 목록수는 비공개, 삭제, 플레이리스트에 포함 등의 이유로 같지 않을 수 있음
-                if len(targer_els) == total_video_count:
-                    print("len(targer_els) == previous_list_size")
+                    # 가져온 목록 수가 전체 목록수와 동일할 때 break
+                    # 전체 목록수는 비공개, 삭제, 플레이리스트에 포함 등의 이유로 같지 않을 수 있음
+                    if len(targer_els) == total_video_count:
+                        print("len(targer_els) == previous_list_size")
+                        break
+
+                    # 가져옥 목록 수가 이전 목록수와 동일하면서 시간이 리미트 시간이 경과했을때 break
+                    if len(targer_els) == previous_list_size and time.time() - start_time > timeout_sec:
+                        print("len(targer_els) == previous_list_size and time.time() - start_time > timeout_sec")
+                        break
+
+                    if len(total_listings) >= limit_count:
+                        print("len(total_listings) >= limit_count")
+                        total_listings = total_listings[:limit_count]
+                        break
+
+                    previous_list_size = len(targer_els)
+
+                except Exception as e:
+                    print("error scrolling down: {}".format(e))
                     break
 
-                # 가져옥 목록 수가 이전 목록수와 동일하면서 시간이 리미트 시간이 경과했을때 break
-                if len(targer_els) == previous_list_size and time.time() - start_time > timeout_sec:
-                    print("len(targer_els) == previous_list_size and time.time() - start_time > timeout_sec")
-                    break
-
-                if len(total_listings) >= limit_count:
-                    print("len(total_listings) >= limit_count")
-                    total_listings = total_listings[:limit_count]
-                    break
-
-                previous_list_size = len(targer_els)
-
-            except Exception as e:
-                print("error scrolling down: {}".format(e))
-                break
-
-        videos = []
-        for listing in total_listings:
-            print("go : ", listing)
-            video = video_scrape(listing)
-            videos.append(video)
+            videos = []
+            for listing in total_listings:
+                print("go : ", listing)
+                video = video_scrape(listing)
+                videos.append(video)
 
 
         channel['title'] = title
@@ -148,9 +149,9 @@ def scrape(url):
         channel['video_count'] = video_count
         channel['view_count'] = view_count
         channel['regist_date'] = regist_date
-        channel['videos'] = videos
+        if get_videos:
+            channel['videos'] = videos
 
-        print("test")
         return channel
 
     except Exception as e:

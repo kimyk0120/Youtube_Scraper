@@ -121,9 +121,9 @@ def scrape(url, get_channel=False):
         video['views'] = views
         video['publication_date'] = publication_date
         video['description'] = description
-        video['likes'] = int(likes)
+        video['likes'] = likes
         video['transcript'] = t_scripts
-        video['reply_count'] = int(reply_count)
+        video['reply_count'] = reply_count
 
         return video
 

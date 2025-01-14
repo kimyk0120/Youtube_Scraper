@@ -120,8 +120,8 @@ If you need to change the output path, do as follows.
 
 
 ## Update
-- 2025.01.02
-
+- 2025.01.02 : Initial implementation started.
+- 2025.01.14 : Added functionality for keyword search.
 
 ## Contact
 
