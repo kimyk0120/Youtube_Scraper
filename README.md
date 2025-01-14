@@ -114,6 +114,8 @@ To use this script, follow these steps:
     python main.py --channel_url "YouTube Channel URL" 
     # or 
     python main.py --keyword "Search Keyword"
+    # or 
+    python main.py --keyword "Search Keyword" shorts
   ```
 If you need to change the output path, do as follows.
    ```bash
@@ -123,7 +125,7 @@ If you need to change the output path, do as follows.
 
 ## Update
 - 2025.01.02 : Initial implementation started.
-- 2025.01.14 : Added functionality for keyword search.
+- 2025.01.14 : Added functionality for keyword search, and Shorts scrape
 
 ## Contact
 

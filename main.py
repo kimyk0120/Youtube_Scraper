@@ -6,6 +6,7 @@ import sys
 
 from scraper.channel import scrape as channel_scrape
 from scraper.keyword_search import scrape as keyword_search_scrape
+from scraper.keyword_search_shorts import scrape as keyword_search_scrape_shorts
 import argparse
 
 if __name__ == '__main__':
@@ -17,6 +18,10 @@ if __name__ == '__main__':
 
     # # 커맨드라인에서 받을 search keyword 추가
     parser.add_argument("--keyword", type=str, help="Search keyword")
+
+    parser.add_argument("shorts", type=str, help="Shorts")
+
+    parser.add_argument("video", type=str, help="Video")
 
     # 출력 파일 경로 (선택 인자, 기본값 제공)
     parser.add_argument(
@@ -41,7 +46,10 @@ if __name__ == '__main__':
     if args.channel_url:
         data_result = channel_scrape(args.channel_url)
     if args.keyword:
-        data_result = keyword_search_scrape(args.keyword)
+        if args.shorts:
+            data_result = keyword_search_scrape_shorts(args.keyword)
+        else:
+            data_result = keyword_search_scrape(args.keyword)
     json_data = json.dumps(data_result, ensure_ascii=False, indent=4)
 
     # 결과를 파일로 저장

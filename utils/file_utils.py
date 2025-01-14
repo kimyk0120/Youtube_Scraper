@@ -11,3 +11,5 @@ def make_result_json( data, output_path="output/result.json"):
         os.makedirs(output_dir)
     with open(output_path, 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
+
+    print('[INFO] Result saved to {}'.format(output_path))
