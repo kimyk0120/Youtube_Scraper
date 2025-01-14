@@ -1,5 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 def create_driver(headless=False):
     """드라이버를 안전하게 생성하고 반환"""
@@ -14,6 +17,6 @@ def create_driver(headless=False):
         options.add_argument('--headless')
 
     return webdriver.Chrome(
-        # service=ChromeService(ChromeDriverManager().install()),
+        service=Service(ChromeDriverManager().install()),
         options=options
     )

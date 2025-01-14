@@ -16,9 +16,7 @@ def scrape(search_keyword,):
         driver.implicitly_wait(10)  # 동기화
         driver.set_window_position(2048, 0)  # 우측 세컨 모니터를 이용하기 위해 왼쪽 메인 모니터 width 만큼 이동
 
-
-        # driver.get('https://www.youtube.com/')  # 요청
-        driver.get('https://www.instagram.com/explore/search/keyword/?q=강아지사료')
+        driver.get('https://www.youtube.com/')  # 요청
 
         # consent
         # consent.consent(driver)
