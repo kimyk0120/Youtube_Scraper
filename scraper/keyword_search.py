@@ -108,10 +108,10 @@ def scrape(search_keyword,):
             result_info.append({'video':video, 'channel':channel})
 
         results = {'search_keyword':search_keyword, 'data':result_info , 'scrape_date':time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}
-        file_utils.make_result_json(results)
-
+        # file_utils.make_result_json(results)
 
         print("end proc")
+        return results
 
     except Exception as e:
         print(f"Error occurred: {e}")

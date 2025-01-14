@@ -4,15 +4,19 @@
 import json
 import sys
 
-from scraper.channel import scrape
+from scraper.channel import scrape as channel_scrape
+from scraper.keyword_search import scrape as keyword_search_scrape
 import argparse
 
 if __name__ == '__main__':
     # Argument Parser 생성
-    parser = argparse.ArgumentParser(description="Search Channel URL for scraper.")
+    parser = argparse.ArgumentParser(description="Search Channel URL or Search Keyword for scraper.")
 
-    # 커맨드라인에서 받을 argument 추가
-    parser.add_argument("url", type=str, help="YouTube channel URL")
+    # 커맨드라인에서 받을 channel url 추가
+    parser.add_argument("--channel_url", type=str, help="YouTube channel URL")
+
+    # # 커맨드라인에서 받을 search keyword 추가
+    parser.add_argument("--keyword", type=str, help="Search keyword")
 
     # 출력 파일 경로 (선택 인자, 기본값 제공)
     parser.add_argument(
@@ -25,12 +29,19 @@ if __name__ == '__main__':
     # 파라미터 파싱
     args = parser.parse_args()
 
-    # 유효성 검사: keyword가 제공되지 않았을 경우 에러 처리
-    if not args.url:
-        print("Error: Please provide a search url as the first argument.")
-        sys.exit(1)  # 오류 코드 1로 종료
+    # 유효성 검사
+    if not args.channel_url and not args.keyword:
+        print("Error: Please provide either search keyword or channel URL.")
+        sys.exit(1)
 
-    data_result = scrape(args.url)
+    if args.channel_url and args.keyword:
+        print("Error: Please provide either search keyword or channel URL, not both.")
+        sys.exit(1)
+
+    if args.channel_url:
+        data_result = channel_scrape(args.channel_url)
+    if args.keyword:
+        data_result = keyword_search_scrape(args.keyword)
     json_data = json.dumps(data_result, ensure_ascii=False, indent=4)
 
     # 결과를 파일로 저장

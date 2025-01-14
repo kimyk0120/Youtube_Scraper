@@ -111,11 +111,13 @@ To use this script, follow these steps:
 
 ### 2. Run the script with Python:
   ```bash 
-    python main.py "YouTube Channel URL" 
+    python main.py --channel_url "YouTube Channel URL" 
+    # or 
+    python main.py --keyword "Search Keyword"
   ```
 If you need to change the output path, do as follows.
    ```bash
-     python main.py "YouTube Channel URL"  --output "ouput path"
+     python main.py --channel_url "YouTube Channel URL"  --output "ouput path"
   ```
 
 
