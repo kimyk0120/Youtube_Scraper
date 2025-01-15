@@ -19,9 +19,10 @@ if __name__ == '__main__':
     # # 커맨드라인에서 받을 search keyword 추가
     parser.add_argument("--keyword", type=str, help="Search keyword")
 
-    parser.add_argument("shorts", type=str, help="Shorts")
-
-    parser.add_argument("video", type=str, help="Video")
+    # shorts와 video를 상호 배타적인 선택으로 추가
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--shorts", action="store_true", help="Search for Shorts")
+    group.add_argument("--video", action="store_true", help="Search for Videos")
 
     # 출력 파일 경로 (선택 인자, 기본값 제공)
     parser.add_argument(
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     if args.keyword:
         if args.shorts:
             data_result = keyword_search_scrape_shorts(args.keyword)
-        else:
+        elif args.video:
             data_result = keyword_search_scrape(args.keyword)
     json_data = json.dumps(data_result, ensure_ascii=False, indent=4)
 

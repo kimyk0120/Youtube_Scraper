@@ -113,9 +113,9 @@ To use this script, follow these steps:
   ```bash 
     python main.py --channel_url "YouTube Channel URL" 
     # or 
-    python main.py --keyword "Search Keyword"
+    python main.py --keyword "Search Keyword" --shorts
     # or 
-    python main.py --keyword "Search Keyword" shorts
+    python main.py --keyword "Search Keyword" --video
   ```
 If you need to change the output path, do as follows.
    ```bash
